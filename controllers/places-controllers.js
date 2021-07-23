@@ -31,7 +31,25 @@ const getPlaceByUserId = (req, res, next) => {
     return next(new Error('Could not find place with user id ' + userId, 404));
   }
   res.json({ place });
+};
+
+const createPlace = (req, res, next) => {
+  const { title, description, address, coordinates, creator } = req.body;
+
+  const createdPlace = {
+    title,
+    description,
+    location: coordinates,
+    address,
+    creator,
+  };
+
+  DUMMY_PLACES.push(createdPlace);
+
+  // 201 default status when something successfully created on the server
+  res.status(201).json({ place: createdPlace });
 }
 
 exports.getPlaceById = getPlaceById;
 exports.getPlaceByUserId = getPlaceByUserId;
+exports.createPlace = createPlace;
