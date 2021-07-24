@@ -30,7 +30,7 @@ const signup = (req, res, next) => {
   const { name, email, password } = req.body;
   const hasUser = DUMMY_USERS.find(u => u.email === email);
   if (hasUser) {
-    throw new HttpError('Could not create user, email is already in use', 422);
+    throw new HttpError('Could not create user, email is already in use', 401);
   }
   const createdUser = {
     id: uuid.v4(),
@@ -45,6 +45,10 @@ const signup = (req, res, next) => {
 };
 
 const login = (req, res, next) => {
+  const errors = validationResult(req);
+  if(!errors.isEmpty()) {
+    throw new HttpError('Could not create user, email is already in use', 401);
+  }
   const { email, password } = req.body;
 
   const identifiedUser = DUMMY_USERS.find(u => u.email === email);
