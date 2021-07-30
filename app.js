@@ -1,6 +1,7 @@
 const express = require('express');
-const HttpError = require('./models/http-error');
+const mongoose = require('mongoose');
 
+const HttpError = require('./models/http-error');
 const placesRoutes = require('./routes/places-routes');
 const usersRoutes = require('./routes/users-routes');
 
@@ -27,4 +28,8 @@ app.use((err, req, res, next) => {
   res.json({ message: err.message || "Unknown error occurred!" })
 });
 
-app.listen(5000);
+mongoose.connect('mongodb+srv://shareplaces:shareplaces@cluster0.2tys1.mongodb.net/places?retryWrites=true&w=majority').then(() => {
+  app.listen(5000);
+}).catch((err) => {
+  console.log(err);
+})
