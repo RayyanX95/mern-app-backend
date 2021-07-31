@@ -19,13 +19,22 @@ let DUMMY_PLACES = [
   }
 ]
 
-const getPlaceById = (req, res, next) => {
+const getPlaceById = async (req, res, next) => {
   const placeId = req.params.pid;
-  const place = DUMMY_PLACES.find(p => p.id === placeId);
+  let place;
+  /** 
+   * @findById is a static method and id does NOT return a promise and we can make 
+   * * it return a promise bu using chain exec() to it => findById().exec();
+   * */
+  try {
+    place = await Place.findById(placeId);
+  } catch (error) {
+    return next(new HttpError('Could not find the place', 500))
+  };
   if (!place) {
     throw new HttpError('Could not find place with place id ' + placeId, 404);
   }
-  res.json({ place });
+  res.json({ place: place.toObject({ getters: true }) });
 };
 
 const getPlacesByUserId = (req, res, next) => {
