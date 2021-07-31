@@ -3,6 +3,7 @@ const uuid = require('uuid');
 
 const HttpError = require("../models/http-error");
 const getCoordinatesForAddress = require('../util/location');
+const Place = require('../models/place');
 
 let DUMMY_PLACES = [
   {
@@ -52,15 +53,21 @@ const createPlace = async (req, res, next) => {
     return next(err);
   }
 
-  const createdPlace = {
-    id: uuid.v4(),
+  const createdPlace = new Place({
     title,
     description,
-    location: coordinates,
     address,
-    creator,
+    location: coordinates,
+    image: "https://img.yts.mx/assets/images/movies/jungle_cruise_2021/medium-cover.jpg",
+    creator
+  });
+  try {
+    await createdPlace.save();
+  } catch (error) {
+    const err = new HttpError('Creating place failed, please again.', 500);
+    // We have to use next here because it's async code!!
+    next(err);
   };
-  DUMMY_PLACES.push(createdPlace);
   // 201 default status when something successfully created on the server
   res.status(201).json({ place: createdPlace });
 };
