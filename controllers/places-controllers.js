@@ -37,14 +37,22 @@ const getPlaceById = async (req, res, next) => {
   res.json({ place: place.toObject({ getters: true }) });
 };
 
-const getPlacesByUserId = (req, res, next) => {
+const getPlacesByUserId = async (req, res, next) => {
   const userId = req.params.uid;
-  console.log(userId);
-  const places = DUMMY_PLACES.filter(p => p.creator === userId);
+  let places;
+  /**
+   * @find methods return array and do NOT return Promise just like `findById()` method.
+   * @Place is the mongoose Schema constructor function
+   */
+  try {
+    places = await Place.find({ creator: userId });
+  } catch (error) {
+    return next(new Error('Could not find place ', 500));
+  };
   if (!places || places.length === 0) {
     return next(new Error('Could not find place with user id ' + userId, 404));
   }
-  res.json({ place: places });
+  res.json({ places: places.map(p => p.toObject({ getters: true })) });
 };
 
 const createPlace = async (req, res, next) => {
