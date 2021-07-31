@@ -22,12 +22,12 @@ let DUMMY_PLACES = [
 const getPlaceById = async (req, res, next) => {
   const placeId = req.params.pid;
   let place;
-  /** 
-   * @findById is a static method and id does NOT return a promise and we can make 
-   * * it return a promise bu using chain exec() to it => findById().exec();
-   * @return an instance of the Schema constructor
-   * */
   try {
+    /** 
+     * @findById is a static method and id does NOT return a promise and we can make 
+     * * it return a promise bu using chain exec() to it => findById().exec();
+     * @return an instance of the Schema constructor
+     * */
     place = await Place.findById(placeId);
   } catch (error) {
     return next(new HttpError('Could not find the place', 500))
@@ -129,20 +129,35 @@ const updatePlace = async (req, res, next) => {
   } catch (error) {
     const err = new HttpError('Updating place failed, please try again.', 500);
     // We have to use next here because it's async code!!
-    next(err);
+    return next(err);
   };
 
   res.status(200).json({ place: place.toObject({ getters: true }) });
 };
 
-const deletePlace = (req, res, next) => {
+const deletePlace = async (req, res, next) => {
   const placeId = req.params.pid;
-  if (!DUMMY_PLACES.find(p => p.id === placeId)) {
-    throw new HttpError('Could not find place with id ' + placeId, 404);
-  }
-  DUMMY_PLACES = DUMMY_PLACES.filter(p => p.id !== placeId);
+  let place;
+  try {
+    place = await Place.findById(placeId);
+  } catch (error) {
+    const err = new HttpError('Something went wrong while deleting place failed, please try again.', 500);
+    // We have to use next here because it's async code!!
+    return next(err);
+  };
 
-  res.status(200).json({ message: 'Place deleted!', placeId: DUMMY_PLACES.find(p => p.id === placeId) });
+  try {
+    /**
+     * @remove is an instance method of the Schema constructor and it's executed async
+     */
+    await place.remove();
+  } catch (error) {
+    const err = new HttpError('Deleting place failed, please try again.', 500);
+    // We have to use next here because it's async code!!
+    return next(err);
+  };
+
+  res.status(200).json({ message: 'Place deleted!' });
 }
 
 exports.getPlaceById = getPlaceById;
