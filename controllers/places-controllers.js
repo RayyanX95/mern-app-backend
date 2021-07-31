@@ -25,6 +25,7 @@ const getPlaceById = async (req, res, next) => {
   /** 
    * @findById is a static method and id does NOT return a promise and we can make 
    * * it return a promise bu using chain exec() to it => findById().exec();
+   * @return an instance of the Schema constructor
    * */
   try {
     place = await Place.findById(placeId);
@@ -79,6 +80,9 @@ const createPlace = async (req, res, next) => {
     creator
   });
   try {
+    /** 
+     * @save is an instance method of the Schema constructor and it's executed async
+     * */
     await createdPlace.save();
   } catch (error) {
     const err = new HttpError('Creating place failed, please again.', 500);
@@ -89,7 +93,7 @@ const createPlace = async (req, res, next) => {
   res.status(201).json({ place: createdPlace });
 };
 
-const updatePlace = (req, res, next) => {
+const updatePlace = async (req, res, next) => {
   const { validationResult } = require('express-validator');
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -99,15 +103,36 @@ const updatePlace = (req, res, next) => {
 
   const { title, description } = req.body;
   const placeId = req.params.pid;
+  let place;
+  try {
+    /** 
+ * @findById is a static method and id does NOT return a promise and we can make 
+ * * it return a promise bu using chain exec() to it => findById().exec();
+ * @return an instance of the Schema constructor
+ * */
+    place = await Place.findById(placeId);
+  } catch (error) {
+    return next(new HttpError('Could not find the place', 500))
+  };
 
-  const updatedPlace = { ...DUMMY_PLACES.find(p => p.id === placeId) };
-  const placeIndex = DUMMY_PLACES.findIndex(p => p.id === placeId);
-  updatedPlace.title = title;
-  updatedPlace.description = description;
+  if (!place) {
+    throw new HttpError('Could not find place with place id ' + placeId, 404);
+  }
 
-  DUMMY_PLACES[placeIndex] = updatedPlace;
+  place.title = title;
+  place.description = description;
+  try {
+    /**
+     * @save is instance method so it's being called using an instance of the Schema(Place)
+     */
+    await place.save();
+  } catch (error) {
+    const err = new HttpError('Updating place failed, please try again.', 500);
+    // We have to use next here because it's async code!!
+    next(err);
+  };
 
-  res.status(200).json({ place: updatedPlace });
+  res.status(200).json({ place: place.toObject({ getters: true }) });
 };
 
 const deletePlace = (req, res, next) => {
