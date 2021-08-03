@@ -1,9 +1,11 @@
+const mongoose = require('mongoose');
 const { validationResult } = require('express-validator');
 const uuid = require('uuid');
 
 const HttpError = require("../models/http-error");
 const getCoordinatesForAddress = require('../util/location');
 const Place = require('../models/place');
+const User = require('../models/users');
 
 let DUMMY_PLACES = [
   {
@@ -79,16 +81,41 @@ const createPlace = async (req, res, next) => {
     image: "https://img.yts.mx/assets/images/movies/jungle_cruise_2021/medium-cover.jpg",
     creator
   });
+
+  let user;
   try {
+    user = await User.findById(creator);
+  } catch (error) {
+    const err = new HttpError('Creating place failed, please again.', 500);
+    next(err);
+  };
+
+  if (!user) {
+    return next(new HttpError('Could not find user with id ' + creator, 404));
+  }
+
+  console.log(user);
+
+  try {
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
     /** 
      * @save is an instance method of the Schema constructor and it's executed async
      * */
-    await createdPlace.save();
+    await createdPlace.save({ session: sess });
+    /**
+     * @push is an mongoose method that behinds the scenes grasp the createdPlace Id
+     * and it to places field of the user (id adds only the place id)
+     */
+    user.places.push(createdPlace);
+    await user.save({ session: sess });
+    sess.commitTransaction();
   } catch (error) {
     const err = new HttpError('Creating place failed, please again.', 500);
     // We have to use next here because it's async code!!
     next(err);
   };
+
   // 201 default status when something successfully created on the server
   res.status(201).json({ place: createdPlace });
 };
