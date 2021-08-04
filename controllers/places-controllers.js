@@ -1,25 +1,10 @@
 const mongoose = require('mongoose');
 const { validationResult } = require('express-validator');
-const uuid = require('uuid');
 
 const HttpError = require("../models/http-error");
 const getCoordinatesForAddress = require('../util/location');
 const Place = require('../models/place');
 const User = require('../models/users');
-
-let DUMMY_PLACES = [
-  {
-    id: 'p1',
-    title: 'Empire State',
-    description: 'One of the famous sky scrapers in the world',
-    location: {
-      lat: 40.7484474,
-      lng: -73.9871516
-    },
-    address: '20 w 34th st, New York',
-    creator: 'u1',
-  }
-]
 
 const getPlaceById = async (req, res, next) => {
   const placeId = req.params.pid;
@@ -43,19 +28,30 @@ const getPlaceById = async (req, res, next) => {
 const getPlacesByUserId = async (req, res, next) => {
   const userId = req.params.uid;
   let places;
-  /**
-   * @find methods return array and do NOT return Promise just like `findById()` method.
-   * @Place is the mongoose Schema constructor function
-   */
+
+  // ** used with the alternative approach of @populate() method
+  let userWithPlaces;
   try {
-    places = await Place.find({ creator: userId });
+    /**
+     * @find methods return array and do NOT return Promise just like `findById()` method.
+     * @Place is the mongoose Schema constructor function
+     */
+    // places = await Place.find({ creator: userId });
+
+    /**
+     * Alternative approach to get places of a certain user using @populate method
+     * We use @places property of @User model as the ref (relation)
+     */
+    userWithPlaces = await User.findById(userId).populate('places');
   } catch (error) {
     return next(new Error('Could not find place ', 500));
   };
-  if (!places || places.length === 0) {
+  if (!userWithPlaces || userWithPlaces.places.length === 0) {
+    // if (!places || places.length === 0) {
     return next(new Error('Could not find place with user id ' + userId, 404));
   }
-  res.json({ places: places.map(p => p.toObject({ getters: true })) });
+  res.json({ places: userWithPlaces.places.map(p => p.toObject({ getters: true })) });
+  // res.json({ places: places.map(p => p.toObject({ getters: true })) });
 };
 
 const createPlace = async (req, res, next) => {
@@ -166,18 +162,32 @@ const deletePlace = async (req, res, next) => {
   const placeId = req.params.pid;
   let place;
   try {
-    place = await Place.findById(placeId);
+    place = await Place.findById(placeId).populate('creator');
   } catch (error) {
     const err = new HttpError('Something went wrong while deleting place failed, please try again.', 500);
     // We have to use next here because it's async code!!
     return next(err);
   };
 
+  if (!place) {
+    return next(new HttpError('Could not find place with id ' + place, 404));
+  }
+
   try {
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
     /**
      * @remove is an instance method of the Schema constructor and it's executed async
      */
-    await place.remove();
+    await place.remove({ session: sess });
+    /**
+     * @pull is a method only remove the Id of this place from @places array
+     * Thanks to @populate method now we can access the user info that has same Id of 
+     * the place @creator property directly from the place
+     */
+    place.creator.places.pull(place);
+    await place.creator.save({ session: sess });
+    await sess.commitTransaction();
   } catch (error) {
     const err = new HttpError('Deleting place failed, please try again.', 500);
     // We have to use next here because it's async code!!
