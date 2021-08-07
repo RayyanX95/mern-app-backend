@@ -11,6 +11,17 @@ const app = express();
 // and convert them into regular javascript data structures
 app.use(express.json());
 
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Request-With, Content-Type, Accept, Authorization'
+  );
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, pATCH, DELETE, OPTIONS');
+
+  next();
+})
+
 app.use('/api/places', placesRoutes);
 
 app.use('/api/users', usersRoutes);
@@ -28,8 +39,8 @@ app.use((err, req, res, next) => {
   res.json({ message: err.message || "Unknown error occurred!" })
 });
 
-mongoose.connect('mongodb+srv://mern-course:mern-course@cluster0.ujphw.mongodb.net/sharePlaces?retryWrites=true&w=majority').then(() => {
+mongoose.connect('mongodb+srv://mern-course:mern-course@cluster0.ujphw.mongodb.net/mern?retryWrites=true&w=majority').then(() => {
   app.listen(5000);
 }).catch((err) => {
   console.log(err);
-})
+});
