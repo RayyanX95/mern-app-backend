@@ -74,7 +74,7 @@ const createPlace = async (req, res, next) => {
     description,
     address,
     location: coordinates,
-    image: "https://img.yts.mx/assets/images/movies/jungle_cruise_2021/medium-cover.jpg",
+    image: "https://www.industrialempathy.com/img/remote/ZiClJf-1920w.jpg",
     creator
   });
 
