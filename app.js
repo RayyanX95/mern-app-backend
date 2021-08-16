@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const fs = require('fs');
 
 const HttpError = require('./models/http-error');
 const placesRoutes = require('./routes/places-routes');
@@ -32,6 +33,17 @@ app.use((req, res, next) => {
 })
 
 app.use((err, req, res, next) => {
+  /**
+   * @file property is provided by @multer package
+   * @unlink is a @fs method that take a file path and remove this file
+   */
+  if (req.file) {
+    fs.unlink(req.file.path, err => {
+      //* this callback is called after removed OR an error occurs
+      console.log(err);
+    });
+  };
+  
   if (res.headerSent) {
     return next(err);
   }
