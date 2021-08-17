@@ -74,7 +74,7 @@ const createPlace = async (req, res, next) => {
     description,
     address,
     location: coordinates,
-    image: "https://www.industrialempathy.com/img/remote/ZiClJf-1920w.jpg",
+    image: req.file.path,
     creator
   });
 
