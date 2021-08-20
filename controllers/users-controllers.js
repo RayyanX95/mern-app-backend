@@ -1,5 +1,6 @@
 const { validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const HttpError = require('../models/http-error');
 const User = require('../models/users');
@@ -75,7 +76,18 @@ const login = async (req, res, next) => {
     const err = new HttpError('logging in failed', 500);
     return next(err);
   };
-  if (!existingUser || existingUser.password !== password) {
+  if (!existingUser) {
+    return next(new Error('Credentials seems to be invalid', 401));
+  }
+
+  let isValidPassword = false;
+  try {
+    isValidPassword = await bcrypt.compare(password, existingUser.password);
+  } catch (error) {
+    return next(new HttpError('Could not login, please try again later', 500));
+  };
+
+  if (!isValidPassword) {
     return next(new Error('Credentials seems to be invalid', 401));
   }
 
