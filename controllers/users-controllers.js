@@ -58,7 +58,27 @@ const signup = async (req, res, next) => {
     return next(new Error('Signing up failed', 500));
   };
 
-  res.status(201).json({ user: createdUser.toObject({ getters: true }) });
+  let token
+  try {
+    /**
+ * @function sign used to create a token
+ * @param {Object | Buffer | string | ...} payload Could be an object literal, buffer or string representing valid JSON 
+ * @param {Object | Buffer | string} secretOrPrivateKey containing either the secret for HMAC algorithms or the PEM encoded private RS and ECDSA.
+ * @param {Object} [options] algorithm (default: HS256). expiresIn: expressed in seconds or a string describing a time span zeit/ms
+ */
+    token = jwt.sign(
+      {
+        userId: createdUser.userId,
+        email: createdUser.email
+      },
+      'supersecret_never_share_bud',
+      { expireIn: '1h' }
+    );
+  } catch (error) {
+    return next(new Error('Signing up failed', 500));
+  };
+
+  res.status(201).json({ userId: createdUser.id, email: createdUser.email, token });
 };
 
 const login = async (req, res, next) => {
@@ -89,7 +109,7 @@ const login = async (req, res, next) => {
 
   if (!isValidPassword) {
     return next(new Error('Credentials seems to be invalid', 401));
-  }
+  };
 
   res.json({ message: 'Logged in!', user: existingUser.toObject({ getters: true }) });
 };
