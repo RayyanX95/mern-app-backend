@@ -78,7 +78,12 @@ const signup = async (req, res, next) => {
     return next(new Error('Signing up failed', 500));
   };
 
-  res.status(201).json({ userId: createdUser.id, email: createdUser.email, token });
+  res.status(201).json({
+    userId: existingUser.id,
+    email: existingUser.email,
+    name: existingUser.name,
+    token
+  });
 };
 
 const login = async (req, res, next) => {
@@ -131,9 +136,12 @@ const login = async (req, res, next) => {
     return next(new Error('Logging in failed', 500));
   };
 
-  res.status(201).json({ userId: existingUser.id, email: existingUser.email, token });
-
-  res.json({ message: 'Logged in!', user: existingUser.toObject({ getters: true }) });
+  res.status(201).json({
+    userId: existingUser.id,
+    email: existingUser.email,
+    name: existingUser.name,
+    token
+  });
 };
 
 exports.getUsers = getUsers;
