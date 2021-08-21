@@ -10,7 +10,7 @@ router.get('/:pid', placesControllers.getPlaceById);
 
 router.get('/user/:uid', placesControllers.getPlacesByUserId);
 
-// add this middleware to routes that require authentication token
+// add this middleware before the routes that require authentication token
 router.use(checkAuth);
 
 router.post('/',

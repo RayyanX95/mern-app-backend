@@ -1,8 +1,13 @@
-const { JsonWebTokenError } = require('jsonwebtoken');
 const HttpError = require('../models/http-error');
 const jwt = require('jsonwebtoken');
 
 module.exports = (req, res, next) => {
+  // if the http method is OPTIONS forward the request without for a TOKEN
+  // This adjustment is necessary to unblock OPTIONS request
+  if (req.method === 'OPTIONS') {
+    return next();
+  };
+
   try {
     const token = req.headers.authorization.split(' ')[1]; // Authorization: 'Bearer TOKEN'
     if (!token) {
@@ -23,5 +28,4 @@ module.exports = (req, res, next) => {
   } catch (error) {
     return next(new HttpError('Authorization failed. ', 401));
   };
-
 }
