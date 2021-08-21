@@ -125,7 +125,7 @@ const login = async (req, res, next) => {
         email: existingUser.email
       },
       'supersecret_never_share_bud',
-      { expireIn: '1h' }
+      { expiresIn: '1h' }
     );
   } catch (error) {
     return next(new Error('Logging in failed', 500));
