@@ -52,12 +52,6 @@ const signup = async (req, res, next) => {
     places: []
   });
 
-  try {
-    await createdUser.save();
-  } catch (error) {
-    return next(new Error('Signing up failed', 500));
-  };
-
   let token
   try {
     /**
@@ -68,12 +62,18 @@ const signup = async (req, res, next) => {
  */
     token = jwt.sign(
       {
-        userId: createdUser.userId,
+        userId: createdUser.id,
         email: createdUser.email
       },
       'supersecret_never_share_bud',
-      { expireIn: '1h' }
+      { expiresIn: '1h' }
     );
+  } catch (error) {
+    return next(new HttpError('Signing up failed, could not create token', 500));
+  };
+
+  try {
+    await createdUser.save();
   } catch (error) {
     return next(new Error('Signing up failed', 500));
   };
