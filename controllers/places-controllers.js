@@ -138,6 +138,13 @@ const updatePlace = async (req, res, next) => {
     return next(new HttpError('Could not find the place', 500))
   };
 
+  /**
+   * Check if the @userId who sent the request is the user who created the place.
+   */
+  if (place.creator !== req.userData.userId) {
+    return next(new HttpError('You are not allowed to update this place.', 401));
+  }
+
   if (!place) {
     throw new HttpError('Could not find place with place id ' + placeId, 404);
   }
