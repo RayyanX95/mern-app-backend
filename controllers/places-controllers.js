@@ -129,10 +129,10 @@ const updatePlace = async (req, res, next) => {
   let place;
   try {
     /** 
- * @findById is a static method and id does NOT return a promise and we can make 
- * * it return a promise bu using chain exec() to it => findById().exec();
- * @return an instance of the Schema constructor
- * */
+     * @findById is a static method and id does NOT return a promise and we can make 
+     * @returns {promise} by using chain exec() to it => findById().exec();
+     * @return an instance of the Schema constructor
+     * */
     place = await Place.findById(placeId);
   } catch (error) {
     return next(new HttpError('Could not find the place', 500))
@@ -140,8 +140,9 @@ const updatePlace = async (req, res, next) => {
 
   /**
    * Check if the @userId who sent the request is the user who created the place.
+   * We have to use @toString method here converts mongoose object type to string.
    */
-  if (place.creator !== req.userData.userId) {
+  if (place.creator.toString() !== req.userData.userId) {
     return next(new HttpError('You are not allowed to update this place.', 401));
   }
 
