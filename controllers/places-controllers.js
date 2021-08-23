@@ -177,6 +177,13 @@ const deletePlace = async (req, res, next) => {
     return next(err);
   };
 
+  /**
+   * Check if the @userId who sent the request is the user who created the place.
+   */
+  if (place.creator.id !== req.userData.userId) {
+    return next(new HttpError('You are not allowed to update this place.', 401));
+  }
+
   if (!place) {
     return next(new HttpError('Could not find place with id ' + place, 404));
   }

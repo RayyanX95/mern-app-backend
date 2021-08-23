@@ -79,9 +79,9 @@ const signup = async (req, res, next) => {
   };
 
   res.status(201).json({
-    userId: existingUser.id,
-    email: existingUser.email,
-    name: existingUser.name,
+    userId: createdUser.id,
+    email: createdUser.email,
+    name: createdUser.name,
     token
   });
 };
@@ -126,7 +126,7 @@ const login = async (req, res, next) => {
  */
     token = jwt.sign(
       {
-        userId: existingUser.userId,
+        userId: existingUser.id,
         email: existingUser.email
       },
       'supersecret_never_share_bud',
