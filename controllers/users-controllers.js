@@ -2,6 +2,8 @@ const { validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+const c;
+
 const HttpError = require('../models/http-error');
 const User = require('../models/users');
 
@@ -33,7 +35,7 @@ const signup = async (req, res, next) => {
   if (existingUser) {
     return next(new Error('User exists already, please login instead', 422));
   }
-
+  // npm i eslint prettier eslint-config-prettier eslint-plugin-prttier 
   /**
  * Hash the password before storing it in the database.
  */
@@ -84,7 +86,7 @@ const signup = async (req, res, next) => {
     name: createdUser.name,
     token
   });
-};
+}
 
 const login = async (req, res, next) => {
   const errors = validationResult(req);

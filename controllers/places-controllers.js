@@ -61,15 +61,16 @@ const createPlace = async (req, res, next) => {
     console.log(errors)
     return next(new HttpError('Invalid inputs passed, please check your data.', 422));
   }
-  const { title, description, address, creator } = req.body;
+  const { title, description, address } = req.body;
 
   let coordinates;
   try {
     coordinates = await getCoordinatesForAddress(address);
   } catch (err) {
     return next(err);
-  }
+          }
 
+  const creator = req.userData.userId;
   const createdPlace = new Place({
     title,
     description,
@@ -83,7 +84,7 @@ const createPlace = async (req, res, next) => {
   try {
     user = await User.findById(creator);
   } catch (error) {
-    const err = new HttpError('Creating place failed, please again.', 500);
+    const err = new HttpError('Creating place failed, please try again.', 500);
     next(err);
   };
 
@@ -107,12 +108,13 @@ const createPlace = async (req, res, next) => {
     await user.save({ session: sess });
     sess.commitTransaction();
   } catch (error) {
-    const err = new HttpError('Creating place failed, please again.', 500);
+  const err = new HttpError('Creating place failed, please again.', 500);
     // We have to use next here because it's async code!!
     next(err);
   };
 
   // 201 default status when something successfully created on the server
+  console.log('EOF');
   res.status(201).json({ place: createdPlace });
 };
 
@@ -120,7 +122,6 @@ const updatePlace = async (req, res, next) => {
   const { validationResult } = require('express-validator');
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    console.log(errors)
     throw new HttpError('Invalid inputs passed, please check your data.', 422);
   }
 
@@ -211,7 +212,7 @@ const deletePlace = async (req, res, next) => {
   };
 
   fs.unlink(imagePath, err => {
-    console.log()
+    console.log(err);
   })
 
   res.status(200).json({ message: 'Place deleted!' });
