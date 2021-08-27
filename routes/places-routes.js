@@ -1,5 +1,5 @@
 const express = require('express');
-const { check } = require('express-validator')
+const { check } = require('express-validator');
 const placesControllers = require('../controllers/places-controllers');
 const fileUpload = require('../middleware/file-upload');
 const checkAuth = require('../middleware/check-auth');
@@ -29,6 +29,6 @@ router.patch('/:pid',
   ],
   placesControllers.updatePlace);
 
-router.delete('/:pid', placesControllers.deletePlace)
+router.delete('/:pid', placesControllers.deletePlace);
 
 module.exports = router;

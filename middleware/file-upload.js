@@ -5,7 +5,7 @@ const MIME_TYPE_MAP = {
   'image/png': 'png',
   'image/jpg': 'jpg',
   'image/jpeg': 'jpeg',
-}
+};
 
 /**
  * @fileUpload is an object that a bunch of middleware
@@ -22,7 +22,7 @@ const fileUpload = multer({
       //* Extract the image extension using the MIME_TYPE_MAP helper object
       const ext = MIME_TYPE_MAP[file.mimetype];
       //* generate a random file with the right extension
-      cb(null, uuid.v1() + '.' + ext);
+      cb(null, `${uuid.v1()  }.${  ext}`);
     }
   }),
   //* 
@@ -30,7 +30,7 @@ const fileUpload = multer({
     //* Check if the incoming file has the right extension
     const isValid = !!MIME_TYPE_MAP[file.mimetype];
     //* Generate an error message if the file has invalid extension
-    let error = isValid ? null : new Error('Invalid mime type: ' + file.mimetype);
+    const error = isValid ? null : new Error(`Invalid mime type: ${  file.mimetype}`);
     //* invoke the callback
     cb(error, isValid);
   }

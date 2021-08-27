@@ -6,13 +6,13 @@ module.exports = (req, res, next) => {
   // This adjustment is necessary to unblock OPTIONS request
   if (req.method === 'OPTIONS') {
     return next();
-  };
+  }
 
   try {
     const token = req.headers.authorization.split(' ')[1]; // Authorization: 'Bearer TOKEN'
     if (!token) {
       return next(new HttpError('Authorization failed: ', 401));
-    };
+    }
 
     /**
      * @function verify decode a token using @secretOrPublicKey that was used to encrypt the token 
@@ -27,5 +27,5 @@ module.exports = (req, res, next) => {
     next(); // move on to the next middleware
   } catch (error) {
     return next(new HttpError('Authorization failed. ', 401));
-  };
-}
+  }
+};

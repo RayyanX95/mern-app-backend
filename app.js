@@ -24,7 +24,7 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
 
   next();
-})
+});
 
 app.use('/api/places', placesRoutes);
 
@@ -33,7 +33,7 @@ app.use('/api/users', usersRoutes);
 app.use((req, res, next) => {
   const error = new HttpError('Could not find this route.', 404);
   throw error;
-})
+});
 
 app.use((err, req, res, next) => {
   /**
@@ -45,13 +45,13 @@ app.use((err, req, res, next) => {
       //* this callback is called after removed OR an error occurs
       console.log(err);
     });
-  };
+  }
   
   if (res.headerSent) {
     return next(err);
   }
   res.status(err.code || 500);
-  res.json({ message: err.message || "Unknown error occurred!" })
+  res.json({ message: err.message || 'Unknown error occurred!' });
 });
 
 mongoose.connect('mongodb+srv://mern-course:mern-course@cluster0.ujphw.mongodb.net/mern?retryWrites=true&w=majority').then(() => {
