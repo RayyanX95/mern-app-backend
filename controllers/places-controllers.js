@@ -28,7 +28,6 @@ const getPlaceById = async (req, res, next) => {
 
 const getPlacesByUserId = async (req, res, next) => {
   const userId = req.params.uid;
-  let places;
 
   // ** used with the alternative approach of @populate() method
   let userWithPlaces;
