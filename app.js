@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const fs = require('fs');
-const path  = require('path');
+const path = require('path');
 
 const HttpError = require('./models/http-error');
 const placesRoutes = require('./routes/places-routes');
@@ -46,7 +46,7 @@ app.use((err, req, res, next) => {
       console.log(err);
     });
   }
-  
+
   if (res.headerSent) {
     return next(err);
   }
@@ -54,8 +54,9 @@ app.use((err, req, res, next) => {
   res.json({ message: err.message || 'Unknown error occurred!' });
 });
 
-mongoose.connect('mongodb+srv://mern-course:mern-course@cluster0.ujphw.mongodb.net/mern?retryWrites=true&w=majority').then(() => {
-  app.listen(5000);
-}).catch((err) => {
-  console.log(err);
-});
+mongoose.connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWD}@cluster0.ujphw.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`)
+  .then(() => {
+    app.listen(5000);
+  }).catch((err) => {
+    console.log(err);
+  });

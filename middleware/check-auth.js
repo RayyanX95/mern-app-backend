@@ -19,7 +19,7 @@ module.exports = (req, res, next) => {
      * @param {string} token s the JsonWebToken string
      * @param {String} secretOrPublicKey
      */
-    const decodedToken = jwt.verify(token, 'supersecret_never_share_bud');
+    const decodedToken = jwt.verify(token, process.env.JWT_KEY);
     req.userData = { userId: decodedToken.userId };
     // const { userId } = jwt.verify(token, 'supersecret_never_share_bud');
     // req.userData = { userId };

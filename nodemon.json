@@ -1,0 +1,8 @@
+{
+  "env": {
+    "DB_USER": "mern-course",
+    "DB_PASSWD": "mern-course",
+    "DB_NAME": "mern",
+    "JWT_KEY": "supersecret_never_share_bud"
+  }
+}

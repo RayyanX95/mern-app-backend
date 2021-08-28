@@ -129,7 +129,7 @@ const login = async (req, res, next) => {
         userId: existingUser.id,
         email: existingUser.email
       },
-      'supersecret_never_share_bud',
+      process.env.JWT_KEY,
       { expiresIn: '1h' }
     );
   } catch (error) {
